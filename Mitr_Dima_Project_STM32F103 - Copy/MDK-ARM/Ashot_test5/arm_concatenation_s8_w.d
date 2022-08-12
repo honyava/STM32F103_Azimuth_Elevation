@@ -1,0 +1,11 @@
+ashot_test5\arm_concatenation_s8_w.o: C:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\NN\Source\ConcatenationFunctions\arm_concatenation_s8_w.c
+ashot_test5\arm_concatenation_s8_w.o: C:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\NN\Include\arm_nnfunctions.h
+ashot_test5\arm_concatenation_s8_w.o: C:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\DSP\Include\arm_math_types.h
+ashot_test5\arm_concatenation_s8_w.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
+ashot_test5\arm_concatenation_s8_w.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+ashot_test5\arm_concatenation_s8_w.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
+ashot_test5\arm_concatenation_s8_w.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+ashot_test5\arm_concatenation_s8_w.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+ashot_test5\arm_concatenation_s8_w.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
+ashot_test5\arm_concatenation_s8_w.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+ashot_test5\arm_concatenation_s8_w.o: C:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\NN\Include\arm_nn_types.h
