@@ -47,7 +47,7 @@
 #define FT_DIRECT        -1    // Direct transform.
 #define FT_INVERSE        1    // Inverse transform.
 #define MENU_NUMB   9
-#define degree  57.29578       // Convert from radian to degrees
+#define DEGREE  57.29578       // Convert from radian to degrees
 
 unsigned char Inversion[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -617,14 +617,14 @@ int main(void)
 						}
 						
 					}
-					phi1_9 = phi1_9*degree; // convert from radian in degrees
-					phi1_10 = phi1_10*degree;
-					phi2_9_10 = phi2_9_10*degree;
+					phi1_9 = phi1_9*DEGREE; // convert from radian in degrees
+					phi1_10 = phi1_10*DEGREE;
+					phi2_9_10 = phi2_9_10*DEGREE;
 					phi1_9_test = phi1_9;
 					phi1_10_test = phi1_10;
 					phi1_9_test = (phi2_9_10 - phi1_9_test)/2;
 					phi1_10_test = (phi2_9_10 - phi1_10_test)/2;
-					phi_end_elevation = (atan2(Ampl1_9,Ampl1_10)*degree);
+					phi_end_elevation = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
 					
 					if(phi1_9_test > 0)
 					{
@@ -683,13 +683,13 @@ int main(void)
 					}
 					if(phi1_9 > 0 && phi1_10 > 0)
 					{						
-						//phi_end = (atan2(Ampl1_9,Ampl1_10)*degree + 135);
-						phi_end = (atan2(Ampl1_9,Ampl1_10)*degree) + 180;
+						//phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE + 135);
+						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE) + 180;
 					}
 					else if(phi1_9 > 0 && phi1_10 < 0)
 					{
-						phi_end = (atan2(Ampl1_9,(-1)*Ampl1_10)*degree) + 180;
-//						phi_end = (atan2(Ampl1_9,Ampl1_10)*degree);
+						phi_end = (atan2(Ampl1_9,(-1)*Ampl1_10)*DEGREE) + 180;
+//						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
 //						if(phi_end < 45)
 //						{
 //							phi_end += 270;
@@ -698,12 +698,12 @@ int main(void)
 //						{
 //							phi_end += 225;
 //						}
-						//phi_end=(1 - (atan2(Ampl1_9,Ampl1_10)*degree)/315)*315;
+						//phi_end=(1 - (atan2(Ampl1_9,Ampl1_10)*DEGREE)/315)*315;
 					}
 					else if(phi1_9 < 0 && phi1_10 < 0)
 					{
-						phi_end = (atan2((-1)*Ampl1_9,(-1)*Ampl1_10)*degree) + 180;
-//						phi_end = (atan2(Ampl1_9,Ampl1_10)*degree);
+						phi_end = (atan2((-1)*Ampl1_9,(-1)*Ampl1_10)*DEGREE) + 180;
+//						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
 //						if (phi_end < 45)
 //						{
 //							phi_end += 315;
@@ -715,8 +715,8 @@ int main(void)
 					}
 					else if(phi1_9 < 0 && phi1_10 > 0)
 					{
-						phi_end = (atan2((-1)*Ampl1_9,Ampl1_10)*degree) + 180;
-//						phi_end = (atan2(Ampl1_9,Ampl1_10)*degree);
+						phi_end = (atan2((-1)*Ampl1_9,Ampl1_10)*DEGREE) + 180;
+//						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
 //						if (phi_end > 45)
 //						{
 //							phi_end += 45;
@@ -725,7 +725,7 @@ int main(void)
 //						{
 //							phi_end += 90;
 //						}
-						//phi_end = (1 - (atan2(Ampl1_9,Ampl1_10)*degree)/135)*135;
+						//phi_end = (1 - (atan2(Ampl1_9,Ampl1_10)*DEGREE)/135)*135;
 					}					
 				}								
 			}
