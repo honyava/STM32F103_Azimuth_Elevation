@@ -513,77 +513,8 @@ int main(void)
 				
 				if(i == ADC_BUF_SIZE)
 				{
-					for(j = 0; j < FFT_SIZE; j++)
-					{
-						Re[j]=ADC1_9[j] - average1_9; // without const component
-						Im[j] = 0.0;
-						Ampl[j] = 0.0;
-						phi[j] = 0.0;
-						
-					}
-
-					FFT(Re, Im, FFT_SIZE, 8, FT_DIRECT); 
 					
-					for (j = 0; j < FFT_SIZE; j++)
-					{
-					  Ampl[j] = sqrt(Im[j]*Im[j]+Re[j]*Re[j])/(FFT_SIZE);
-						phi[j] = atan2(Im[j],Re[j]);
-					}
-					max1_9 = Ampl[0];
-					after_max1_9 = Ampl[0];		
-					for (j = 0; j < FFT_SIZE; j++)
-					{
-					  if(Ampl[j] > max1_9)
-            {
-              max1_9 = Ampl[j]; // search max value
-							phi1_9 = phi[j];
-							if(Ampl[j-1] > Ampl[j+1])
-							{
-								after_max1_9 = Ampl[j-1];
-							}
-							else
-							{
-								after_max1_9 = Ampl[j+1];
-							}
-							Ampl1_9 = 2*(max1_9 + after_max1_9);
-						}
-					}	
-					///////////////////////////////////////////////// NEW_CHANEL
-					for(j = 0; j < FFT_SIZE; j++)
-					{
-						Re[j] = ADC1_10[j]-average1_10; // without const component
-						Im[j] = 0.0;									
-					}
-
-					FFT(Re, Im, FFT_SIZE, 8, FT_DIRECT); 
-					
-					for (j = 0; j < FFT_SIZE; j++)
-					{
-					  Ampl[j] = sqrt(Im[j]*Im[j]+Re[j]*Re[j])/(FFT_SIZE);
-						phi[j] = atan2(Im[j],Re[j]);
-						
-					}
-					max1_10 = Ampl[0];
-					after_max1_10 = Ampl[0];		
-					for (j = 0; j < FFT_SIZE; j++)
-					{
-					  if(Ampl[j] > max1_10)
-            {
-							
-              max1_10 = Ampl[j]; // search max value
-							phi1_10 = phi[j];
-							if(Ampl[j-1] > Ampl[j+1])
-							{
-								after_max1_10 = Ampl[j-1];
-							}
-							else
-							{
-								after_max1_10 = Ampl[j+1];
-							}
-							Ampl1_10 = 2*(max1_10 + after_max1_10);
-						}
-					}	
-	///////////////////////////////////////////////// NEW_CHANEL
+						///////////////////////////////////////////////// NEW_CHANEL
 					for(j = 0; j < FFT_SIZE; j++)
 					{
 						Re[j] = ADC2_9[j] - average2_9; // without const component
@@ -605,18 +536,78 @@ int main(void)
             {
               max2_9_10 = Ampl[j]; // search max value
 							phi2_9_10 = phi[j];
-							if(Ampl[j-1] > Ampl[j+1]) // search the second of max value
+							t = j;
+							if(Ampl[t-1] > Ampl[t+1]) // search the second of max value
 							{
-								after_max2_9_10 = Ampl[j-1];
+								after_max2_9_10 = Ampl[t-1];
 							}
 							else
 							{
-								after_max2_9_10 = Ampl[j+1];
+								after_max2_9_10 = Ampl[t+1];
 							}
 							Ampl2_9_10 = 2*(max2_9_10 + after_max2_9_10);
 						}
 						
 					}
+					
+					for(j = 0; j < FFT_SIZE; j++)
+					{
+						Re[j]=ADC1_9[j] - average1_9; // without const component
+						Im[j] = 0.0;
+						Ampl[j] = 0.0;
+						phi[j] = 0.0;
+						
+					}
+
+					FFT(Re, Im, FFT_SIZE, 8, FT_DIRECT); 
+					
+					for (j = 0; j < FFT_SIZE; j++)
+					{
+					  Ampl[j] = sqrt(Im[j]*Im[j]+Re[j]*Re[j])/(FFT_SIZE);
+						phi[j] = atan2(Im[j],Re[j]);
+					}
+					max1_9 = Ampl[t];
+					after_max1_9 = Ampl[0];		
+					if(Ampl[t-1] > Ampl[t+1])
+					{
+						after_max1_9 = Ampl[t-1];
+					}
+					else
+					{
+						after_max1_9 = Ampl[t+1];
+					}
+					Ampl1_9 = 2*(max1_9 + after_max1_9);
+							
+					///////////////////////////////////////////////// NEW_CHANEL
+					for(j = 0; j < FFT_SIZE; j++)
+					{
+						Re[j] = ADC1_10[j]-average1_10; // without const component
+						Im[j] = 0.0;									
+					}
+
+					FFT(Re, Im, FFT_SIZE, 8, FT_DIRECT); 
+					
+					for (j = 0; j < FFT_SIZE; j++)
+					{
+					  Ampl[j] = sqrt(Im[j]*Im[j]+Re[j]*Re[j])/(FFT_SIZE);
+						phi[j] = atan2(Im[j],Re[j]);
+						
+					}
+					
+					after_max1_10 = 0.0;		
+          max1_10 = Ampl[t]; // search max value
+				  phi1_10 = phi[t];
+				  if(Ampl[t-1] > Ampl[t+1])
+					{
+						after_max1_10 = Ampl[t-1];
+					}
+					else
+					{
+						after_max1_10 = Ampl[t+1];
+					}
+					Ampl1_10 = 2*(max1_10 + after_max1_10);
+
+	
 					phi1_9 = phi1_9*DEGREE; // convert from radian in degrees
 					phi1_10 = phi1_10*DEGREE;
 					phi2_9_10 = phi2_9_10*DEGREE;
