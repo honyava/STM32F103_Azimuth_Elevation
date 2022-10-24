@@ -110,6 +110,8 @@ float phi1_9 = 0;
 float phi1_10 = 0;
 float phi1_9_test = 0;
 float phi1_10_test = 0;
+float phi1_10_el = 0;
+float phi1_9_el = 0;
 float phi2_9_10 = 0;
 float phi_end = 0;
 float phi_end_elevation = 0;
@@ -450,10 +452,8 @@ int main(void)
   MX_ADC2_Init();
   MX_TIM3_Init();
 	TIM1_Init();
-  //MX_USART1_UART_Init();
   MX_SPI1_Init();
   MX_DMA_Init();
-  //MX_CRC_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start(&htim3);
@@ -484,10 +484,8 @@ int main(void)
 			{
         if(i % 2 == 1)
         {
-					ADC1_9[i/2] = (ADC_MEASURE[i] & 0xFFFF)*0.80586;// convert in mV (3300/4095)
-					ADC2_9[i/2] = ((ADC_MEASURE[i] & 0xFFFF0000) >> 16)*0.80586;	
-					//snprintf(trans_str, 10, "%10.4f ", ADC1_9[i/2]);
-					//HAL_UART_Transmit(&huart1, (uint8_t*)trans_str, strlen(trans_str), 100);
+					ADC1_9[i/2] = (ADC_MEASURE[i] & 0xFFFF)*0.80586;// convert in mV (3300/4095)   sin channel
+					ADC2_9[i/2] = ((ADC_MEASURE[i] & 0xFFFF0000) >> 16)*0.80586; // reference channel	
 					sum1_9 += ADC1_9[i/2];
 					sum2_9 += ADC2_9[i/2];
 					if(i == FFT_SIZE*2 - 1)
@@ -499,10 +497,8 @@ int main(void)
         }
         else
         {
-					ADC1_10[k] = (ADC_MEASURE[i]&0xFFFF)*0.80586;
-					//ADC2_10[k]=((ADC_MEASURE[i]&0xFFFF0000)>>16)*0.80586;
+					ADC1_10[k] = (ADC_MEASURE[i]&0xFFFF)*0.80586; // cos channel
 					sum1_10 += ADC1_10[k];
-					//sum2_10+=ADC2_10[k];
 					k++;
 					if(k == FFT_SIZE)
 					{
@@ -512,9 +508,8 @@ int main(void)
 				i++;
 				
 				if(i == ADC_BUF_SIZE)
-				{
-					
-						///////////////////////////////////////////////// NEW_CHANEL
+				{	
+					///////////////////////////////////////////////// NEW_CHANEL(reference channel)
 					for(j = 0; j < FFT_SIZE; j++)
 					{
 						Re[j] = ADC2_9[j] - average2_9; // without const component
@@ -547,27 +542,25 @@ int main(void)
 							}
 							Ampl2_9_10 = 2*(max2_9_10 + after_max2_9_10);
 						}
-						
 					}
-					
+//////////////////////////////////////////////////////// NEW_CHANEL(sin)					
 					for(j = 0; j < FFT_SIZE; j++)
 					{
 						Re[j]=ADC1_9[j] - average1_9; // without const component
 						Im[j] = 0.0;
 						Ampl[j] = 0.0;
 						phi[j] = 0.0;
-						
 					}
-
-					FFT(Re, Im, FFT_SIZE, 8, FT_DIRECT); 
-					
+					FFT(Re, Im, FFT_SIZE, 8, FT_DIRECT); 					
 					for (j = 0; j < FFT_SIZE; j++)
 					{
 					  Ampl[j] = sqrt(Im[j]*Im[j]+Re[j]*Re[j])/(FFT_SIZE);
 						phi[j] = atan2(Im[j],Re[j]);
 					}
-					max1_9 = Ampl[t];
-					after_max1_9 = Ampl[0];		
+					max1_9 =  Ampl[t];
+					after_max1_9 = 0.0;	
+					phi1_9 = phi[t];
+
 					if(Ampl[t-1] > Ampl[t+1])
 					{
 						after_max1_9 = Ampl[t-1];
@@ -576,9 +569,9 @@ int main(void)
 					{
 						after_max1_9 = Ampl[t+1];
 					}
-					Ampl1_9 = 2*(max1_9 + after_max1_9);
-							
-					///////////////////////////////////////////////// NEW_CHANEL
+					Ampl1_9 = 2*(max1_9 + after_max1_9); // Ampl for sin channel
+	
+//////////////////////////////////////////////////////// NEW_CHANEL(cos)
 					for(j = 0; j < FFT_SIZE; j++)
 					{
 						Re[j] = ADC1_10[j]-average1_10; // without const component
@@ -593,11 +586,11 @@ int main(void)
 						phi[j] = atan2(Im[j],Re[j]);
 						
 					}
-					
-					after_max1_10 = 0.0;		
-          max1_10 = Ampl[t]; // search max value
-				  phi1_10 = phi[t];
-				  if(Ampl[t-1] > Ampl[t+1])
+					max1_10 = Ampl[t];
+					after_max1_10 = 0.0;
+					phi1_10 = phi[t];
+
+					if(Ampl[t-1] > Ampl[t+1])
 					{
 						after_max1_10 = Ampl[t-1];
 					}
@@ -605,19 +598,17 @@ int main(void)
 					{
 						after_max1_10 = Ampl[t+1];
 					}
-					Ampl1_10 = 2*(max1_10 + after_max1_10);
-
-	
+					Ampl1_10 = 2*(max1_10 + after_max1_10); // Ampl for cos channel
+						
 					phi1_9 = phi1_9*DEGREE; // convert from radian in degrees
 					phi1_10 = phi1_10*DEGREE;
 					phi2_9_10 = phi2_9_10*DEGREE;
 					phi1_9_test = phi1_9;
-					phi1_10_test = phi1_10;
+					phi1_10_test = phi1_10;							
 					phi1_9_test = (phi2_9_10 - phi1_9_test)/2;
 					phi1_10_test = (phi2_9_10 - phi1_10_test)/2;
-					phi_end_elevation = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
 					
-					if(phi1_9_test >= 0)
+					if(phi1_9_test >= 0) // calculate angle of sin channel
 					{
 						phi1_9 = (phi2_9_10 - phi1_9)/2;
 					}
@@ -637,15 +628,13 @@ int main(void)
 					else if (phi1_9 <= 135 && phi1_9 > 90)
 					{
 						phi1_9 = (phi1_9/135 - 2/3)*(-270);
-						//phi1_9 = (1 - phi1_9/180)*360*(-1);
 					}
 					else if (phi1_9 <= 180 && phi1_9 > 135)
 					{
 						phi1_9 = (phi1_9/135 - 2/3)*(-270);
-						//phi1_9 = (1 - phi1_9/180)*360*(-1);
 					}		
 					
-					if(phi1_10_test >= 0)
+					if(phi1_10_test >= 0) // calculate angle of cos channel
 					{
 						phi1_10 = (phi2_9_10 - phi1_10)/2;
 					}
@@ -665,84 +654,39 @@ int main(void)
 					else if (phi1_10 <= 135 && phi1_10 > 90)
 					{
 						phi1_10 = (phi1_10/135 - 2/3)*(-270);
-						//phi1_10 = (1 - phi1_10/180)*360*(-1);
 					}
 					else if (phi1_10 <= 180 && phi1_10 > 135)
 					{
 						phi1_10 = (phi1_10/135 - 2/3)*(-270);
-						//phi1_10 = (1 - phi1_10/180)*360*(-1);
 					}
 					if(phi1_9 >= 0 && phi1_10 >= 0)
 					{						
-						//phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE + 135);
-						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE) + 180;
+						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
+						if (phi_end <= 45) phi_end += 315;
+						else phi_end -= 45;
+						phi_end_elevation = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
 					}
 					else if(phi1_9 > 0 && phi1_10 <= 0)
 					{
-						phi_end = (atan2(Ampl1_9,(-1)*Ampl1_10)*DEGREE) + 180;
-//						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
-//						if(phi_end < 45)
-//						{
-//							phi_end += 270;
-//						}
-//						else
-//						{
-//							phi_end += 225;
-//						}
-						//phi_end=(1 - (atan2(Ampl1_9,Ampl1_10)*DEGREE)/315)*315;
+						phi_end = (atan2(Ampl1_9,-Ampl1_10)*DEGREE) - 45;
+						phi_end_elevation = (atan2(Ampl1_9,-Ampl1_10)*DEGREE);
 					}
 					else if(phi1_9 < 0 && phi1_10 <= 0)
 					{
-						phi_end = (atan2((-1)*Ampl1_9,(-1)*Ampl1_10)*DEGREE) + 180;
-//						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
-//						if (phi_end < 45)
-//						{
-//							phi_end += 315;
-//						}
-//						else
-//						{
-//							phi_end -= 45;
-//						}
+						phi_end_elevation = (atan2(-Ampl1_9,-Ampl1_10)*DEGREE);
+						phi_end = (atan2(-Ampl1_9,-Ampl1_10)*DEGREE);
+					  phi_end += 315;
 					}
 					else if(phi1_9 <= 0 && phi1_10 > 0)
 					{
-						phi_end = (atan2((-1)*Ampl1_9,Ampl1_10)*DEGREE) + 180;
-//						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
-//						if (phi_end > 45)
-//						{
-//							phi_end += 45;
-//						}
-//						else
-//						{
-//							phi_end += 90;
-//						}
-						//phi_end = (1 - (atan2(Ampl1_9,Ampl1_10)*DEGREE)/135)*135;
-					}					
+					  phi_end = (atan2(-Ampl1_9,Ampl1_10)*DEGREE) + 315;
+						phi_end_elevation = (atan2(-Ampl1_9,Ampl1_10)*DEGREE);
+					}						
 				}								
 			}
 			JoyPos = GetJoystickPosition();
 			if((strncmp ((char*)buffer, (char*)str2,4) == 0) && (flag_usb == 1))
-			{
-
-//					snprintf(trans_str2, 20, "Ampl1: %.3f \n", Ampl1_9);
-//					CDC_Transmit_FS((uint8_t*)trans_str2, strlen(trans_str2));
-//					snprintf(trans_str2, 20, "Ampl2: %.3f \n", Ampl1_10);
-//					CDC_Transmit_FS((uint8_t*)trans_str2, strlen(trans_str2));
-//					snprintf(trans_str2, 20, "Ampl3: %.3f \n", Ampl2_9_10);
-//					CDC_Transmit_FS((uint8_t*)trans_str2, strlen(trans_str2));
-//					HAL_Delay(2);
-//					snprintf(trans_str2, 20, "phi1: %.3f \n", phi1_9);
-//					CDC_Transmit_FS((uint8_t*)trans_str2, strlen(trans_str2));
-//					snprintf(trans_str2, 20, "phi2: %.3f \n", phi1_10);
-//					CDC_Transmit_FS((uint8_t*)trans_str2, strlen(trans_str2));
-//					snprintf(trans_str2, 20, "phi3: %.3f \n", phi2_9_10);
-//					CDC_Transmit_FS((uint8_t*)trans_str2, strlen(trans_str2));
-//					HAL_Delay(2);
-//					sprintf(trans_str2, "phi_AZ: %.3f",phi_end);		
-//					CDC_Transmit_FS((uint8_t*)trans_str2, strlen(trans_str2));					
-//					sprintf(trans_str2, "phi_EL: %.3f",phi_end_elevation);		
-//					CDC_Transmit_FS((uint8_t*)trans_str2, strlen(trans_str2));
-					
+			{	
 				COM_float_write(Ampl1_9);
 				COM_float_write(Ampl1_10);
 				COM_float_write(Ampl2_9_10);
