@@ -659,25 +659,25 @@ int main(void)
 					{
 						phi1_10 = (phi1_10/135 - 2/3)*(-270);
 					}
-					if(phi1_9 >= 0 && phi1_10 >= 0)
+					if(phi1_9 <= 0 && phi1_10 <= 0)
 					{						
 						phi_end = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
 						if (phi_end <= 45) phi_end += 315;
 						else phi_end -= 45;
 						phi_end_elevation = (atan2(Ampl1_9,Ampl1_10)*DEGREE);
 					}
-					else if(phi1_9 > 0 && phi1_10 <= 0)
+					else if(phi1_9 < 0 && phi1_10 >= 0)
 					{
 						phi_end = (atan2(Ampl1_9,-Ampl1_10)*DEGREE) - 45;
 						phi_end_elevation = (atan2(Ampl1_9,-Ampl1_10)*DEGREE);
 					}
-					else if(phi1_9 < 0 && phi1_10 <= 0)
+					else if(phi1_9 > 0 && phi1_10 >= 0)
 					{
 						phi_end_elevation = (atan2(-Ampl1_9,-Ampl1_10)*DEGREE);
 						phi_end = (atan2(-Ampl1_9,-Ampl1_10)*DEGREE);
 					  phi_end += 315;
 					}
-					else if(phi1_9 <= 0 && phi1_10 > 0)
+					else if(phi1_9 >= 0 && phi1_10 < 0)
 					{
 					  phi_end = (atan2(-Ampl1_9,Ampl1_10)*DEGREE) + 315;
 						phi_end_elevation = (atan2(-Ampl1_9,Ampl1_10)*DEGREE);
