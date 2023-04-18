@@ -73,7 +73,7 @@ function dev_port = find_kama_port()
     disp("Поиск порта для Камы..."); 
     baudrate = 115200;
     ports = serialportlist("available");    
-    ports = "COM10";
+    ports = "COM9";
     for port = ports
         fprintf("Попытка подключения к порту %s\n", port);
         dev_port = serialport(port, baudrate, Timeout = 5);

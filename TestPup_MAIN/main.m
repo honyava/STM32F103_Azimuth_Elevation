@@ -1,6 +1,7 @@
 clear
 close all
 kama_cnt = 0;
+
 % название платы для теста "az" или "el"
 pup_name = 'az';
 run("init");
@@ -12,14 +13,17 @@ kama_port = dev_ports.kama;
 % kama_send(dev_ports.kama, [50.0 12.0 54545]);
 
 % Задание режима ПУП
-%pup_write(pup_name, pup_port, 0x1, 1); %% 1-normal, 2-kama
-pup_write(pup_name, pup_port, 0x1, 2); %% 1-normal, 2-kama
+pup_write(pup_name, pup_port, 0x1, 1); %% 1-normal, 2-kama
+% pup_write(pup_name, pup_port, 0x1, 2); %% 1-normal, 2-kama
 pause(0.5);
+
+test_pup_send_deg(pup_name, pup_port, pmes_port);
+% test_kama_send_deg(kama_port, pmes_port);
 
 %%%%%%%%%%%%%%%%Test function
 % pup_get_ver(pup_name, pup_port);
 pause(0.2);
-pup_send_cor_kama_first_azat(pup_name, pup_port, 1, 0);
+% pup_send_cor_kama_first_azat(pup_name, pup_port, 1, 0);
 pause(0.2);
 % pup_send_cor_kama_first_r(pup_name, pup_port, 200);
 % pause(0.2);
@@ -42,9 +46,9 @@ p = plot(0, 0, 'o', 'MarkerFaceColor', 'red');
 al = animatedline('Color', [0 .7 .7]);
 txt = text(0, 0, "");
 
-%deg_test = (0:2:360)';
-deg_test = repelem(22,2000);
-k = 10;
+deg_test = (0:2:360)';
+% deg_test = repelem(22,2000);
+k = 2;
 
 deg_ref = repelem(deg_test, k);
 deg_mes = deg_ref * 0;
@@ -70,9 +74,9 @@ while true
 for i = 1:length(deg_ref)
     if mod(i, k) == 1
         fprintf("\n"); 
-%          pup_send_deg(pup_name, pup_port, deg_ref(i));    
+         pup_send_deg(pup_name, pup_port, deg_ref(i));    
 %         kama_send(kama_port, [deg_ref(i), 50, 3000]);    
-          kama_send(kama_port, [deg_ref(i), 10, 2000]);
+%           kama_send(kama_port, [deg_ref(i), 10, 2000]);
         
          kama_cnt = kama_cnt + 1;
         fprintf("Ref degree %4.1f\n", deg_ref(i)); 
@@ -96,8 +100,8 @@ for i = 1:length(deg_ref)
  %   deg_mes(i) = data(8); %for elevation
     fprintf("%6.1f |%6.1f |%6.1f |%6.1f |%6.1f |%6.1f |%6.1f |%6.1f\n", data);   
     [az_out, el_out, r_out] = ParalaxCalcRef(deg_ref(i), 10, 2000);
-     deg_delta(i) = az_out - deg_mes(i);
-   % deg_delta(i) = deg_ref(i) - deg_mes(i);
+%      deg_delta(i) = az_out - deg_mes(i);
+   deg_delta(i) = deg_ref(i) - deg_mes(i);
 
     if deg_delta(i) > 180
         deg_delta(i) = deg_delta(i) - 360;
@@ -280,4 +284,35 @@ function kama_send(port, coords)
     fprintf(" 0x%02X", buf);
     fprintf("\n");
 
+end
+
+function test_pup_send_deg(pup_name, pup_port, pmes_port)
+    fprintf("Test Pup\n");
+    angles = sort(randi([0, 360], 1, 6));
+    for i = 1:numel(angles)
+        pup_send_deg(pup_name, pup_port, angles(i));
+        pause(0.1);
+        pmes_port.write("TEST", "uint8");
+    % проверить, что угол, который мы отправили, совпадает с углом, который мы прочитали
+        deg_mes = pmes_port.read(8, "single");
+        assert(round(abs(angles(i)) - round(deg_mes(7))) <= 1);
+        fprintf("PUP Az %6.1f: Ok\n", deg_mes(7));
+        pause(0.1);
+    end
+end
+
+function test_kama_send_deg(kama_port, pmes_port)
+    fprintf("Test KAMA\n");
+    angles = sort(randi([0, 360], 1, 6));
+    for i = 1:numel(angles)
+        kama_send(kama_port, [angles(i), 10, 2000]);
+        pause(0.1);
+        pmes_port.write("TEST", "uint8");
+    % проверить, что угол, который мы отправили, совпадает с углом, который мы прочитали
+        deg_mes = pmes_port.read(8, "single");
+        [az_out, el_out, r_out] = ParalaxCalcRef(angles(i), 10, 2000);
+        %assert((round(deg_mes(7)) <= 1);
+        fprintf("KAMA Az %6.1f: Ok\n", deg_mes(7));
+        pause(0.1);
+    end
 end
