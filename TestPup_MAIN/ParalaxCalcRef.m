@@ -3,9 +3,9 @@
 %u32 r м     = r_in
 
 function [az_out, el_out, r_out] = ParalaxCalcRef(az_in, el_in, r_in)%#codegen
-    x_base = 30;
-    y_base = 20;
-    z_base = 10;
+    x_base = 29;
+    y_base = 17;
+    z_base = 11;
 
 
     az_in = deg2rad(az_in);
