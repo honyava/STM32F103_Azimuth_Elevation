@@ -2,7 +2,8 @@ clear
 close all
 kama_cnt = 0;
 
-AZIMUTH_TEST = [192.19];
+AZIMUTH_TEST = 0:2:359;
+
 ELEVATION_TEST = [2.89];
 R_TEST = [1024];
 
@@ -17,15 +18,17 @@ kama_port = dev_ports.kama;
 % kama_send(dev_ports.kama, [50.0 12.0 54545]);
 
 % Задание режима ПУП
-pup_write(pup_name, pup_port, 0x1, 1); %% 1-normal, 2-kama
-% pup_write(pup_name, pup_port, 0x1, 2); %% 1-normal, 2-kama
+% pup_write(pup_name, pup_port, 0x1, 1); %% 1-normal, 2-kama
+pup_write(pup_name, pup_port, 0x1, 2); %% 1-normal, 2-kama
 pause(0.5);
-input("Нажмите Enter для продолжения");
+% input("Нажмите Enter для продолжения");
 % pup_send_cor_kama_first_azat(pup_name, pup_port, 0, -1.5);
 pause(0.5);
 % test_pup_send_deg(pup_name, pup_port, pmes_port);
 
+%%%%%%%%%TEST
 % test_kama_send_deg(kama_port, pmes_port, 0.01, AZIMUTH_TEST, ELEVATION_TEST, R_TEST);
+%%%%%%%%%TEST
 
 %%%%%%%%%%%%%%%%Test function
 % pup_get_ver(pup_name, pup_port);
@@ -43,7 +46,8 @@ pause(0.2);
 % pup_send_kama_pos(pup_name, pup_port, 30, 20, 10);
 pause(0.1);
 pup_send_deg(pup_name, pup_port, 0);
-kama_send(kama_port, [0, 10, 2000]);
+pup_send_cor_first(pup_name, pup_port, 3)
+kama_send(kama_port, [0, ELEVATION_TEST, R_TEST]);
 % return
 input("Нажмите Enter для начала теста")
 
@@ -53,7 +57,7 @@ al = animatedline('Color', [0 .7 .7]);
 txt = text(0, 0, "");
 
 % deg_test = (0:2:360)';
-deg_test = repelem(191.5,2000);
+deg_test = AZIMUTH_TEST;
 k = 2;
 
 deg_ref = repelem(deg_test, k);
@@ -82,7 +86,7 @@ for i = 1:length(deg_ref)
         fprintf("\n"); 
 %          pup_send_deg(pup_name, pup_port, deg_ref(i));    
 %         kama_send(kama_port, [deg_ref(i), 50, 3000]);    
-          kama_send(kama_port, [deg_ref(i), 2.89, 1024]);
+          kama_send(kama_port, [deg_ref(i), ELEVATION_TEST, R_TEST]);
           pause(0.2);
          kama_cnt = kama_cnt + 1;
         fprintf("Ref degree %4.1f\n", deg_ref(i)); 
@@ -219,6 +223,17 @@ function pup_send_cor(name, port, correction)
     pup_write(name, port, 0x6, cmd)
 end
 
+function pup_send_cor_first(name, port, correction)
+    arguments
+        name
+        port        
+        correction (1,1) double
+    end
+    cmd = typecast(int32(correction * 10), "uint32");
+    cmd = uint32(bitshift(cmd, 16));
+    pup_write(name, port, 0x5, cmd)
+end
+
 function pup_write(name, port, id, cmd)
     arguments
         name
@@ -246,51 +261,7 @@ function pup_write(name, port, id, cmd)
     fprintf("\n");
 end
 
-function kama_send(port, coords)
-    arguments        
-        port
-        coords (1, 3) double
-    end   
 
-    int_az = uint32(coords(1) * 16384/180);
-    int_el = uint32(abs(coords(2) * 16384/180));
-    el_is_neg = coords(2) < 0;
-    int_r = uint32(coords(3));
-
-    buf = uint8(zeros(1, 26));
-    buf(1) = 0xEB;
-
-    buf(12) = uint8(bitshift(bitand(int_az, 0b0111000000000000u32), -12));
-    buf(13) = uint8(bitshift(bitand(int_az, 0b0000111111100000u32), -5));
-    buf(14) = uint8(bitshift(bitand(int_az, 0b0000000000011111u32), 2));
-
-    buf(15) = uint8(bitshift(bitand(int_r, 0b011000000000000000000000u32), -21));
-    buf(16) = uint8(bitshift(bitand(int_r, 0b000111111100000000000000u32), -14));
-    buf(17) = uint8(bitshift(bitand(int_r, 0b000000000011111110000000u32), -7));
-    buf(18) = uint8(bitand(int_r, 0b000000000000000001111111u32));
-
-    buf(19) = uint8(bitshift(bitand(int_el, 0b0111000000000000u32), -12));
-    buf(20) = uint8(bitshift(bitand(int_el, 0b0000111111100000u32), -5));
-    buf(21) = uint8(bitshift(bitand(int_el, 0b0000000000011111u32), 2));
-    if el_is_neg
-        buf(19) = bitor(buf(19), 0x40);
-    end
-
-    buf(25) = 0x9C;
-
-    crc = sum(buf);
-    crc = mod(crc, 256) + bitshift(crc, -8);
-    crc = mod(crc, 256) + bitshift(crc, -8);
-    crc = mod(crc, 256) + bitshift(crc, -8);
-
-    buf(26) = uint8(crc);
-
-    port.write(buf, 'uint8');
-    fprintf("Send from Kama:");
-    fprintf(" 0x%02X", buf);
-    fprintf("\n");
-
-end
 
 function test_pup_send_deg(pup_name, pup_port, pmes_port)
     fprintf("Test Pup\n");
